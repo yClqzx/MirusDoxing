@@ -6,9 +6,9 @@ pkg install git
 
 git clone https://github.com/yClqzx/MirusDoxing
 
-pip install requests
-
 pkg install python
+
+pip install requests
 
 git clone https://github.com/moxie0/sslstrip
 
