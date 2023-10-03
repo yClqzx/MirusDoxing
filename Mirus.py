@@ -1,3 +1,17 @@
+"""MirusDoxingTool"""
+ 
+__author__ = "yClqzx"
+__email__  = "soon"
+__license__= """
+Copyright (c) 2023-2023
+ 
+This program is a tool for hacking and is private contains a security key so that it can not be made public use it for educational and non-malicious purposes
+If you use this program for malicious purposes otherwise we will obtain your IP address
+Using this tool may be illegal!
+
+The creator of the program is someone Python developer
+"""
+
 import os
 import json
 import urllib.request
